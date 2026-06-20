@@ -1,0 +1,54 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+
+# Archivos de configuración local
+.env
+.env.*
+
+# Distribución / empaquetado
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# Cachés de herramientas
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Datos temporales
+tmp/
+temp/
+
+# Bases de datos locales
+*.db
+*.sqlite
+*.sqlite3
+
+#datos
+datos/
