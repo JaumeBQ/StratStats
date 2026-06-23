@@ -2,7 +2,7 @@
 
 > **A simple yet powerful backtesting web app for trading strategies on stocks and options portfolios.**
 
-StratStats is a [Streamlit](https://streamlit.io)-based web application that lets you upload your own trading strategy (written in Python/Backtrader), backtest it against historical market data, and optimize its parameters, all from a clean browser interface.
+StratStats is a [Streamlit](https://streamlit.io)-based web application that lets you upload your own trading strategy (written in Python/Backtrader), backtest it against historical market data, and optimize its parameters — all from a clean browser interface.
 
 ---
 
@@ -74,40 +74,47 @@ The app will open in your browser at `http://localhost:8501`.
 
 ## 📝 Writing Your Own Strategy
 
-Strategies must be written using the [Backtrader](https://www.backtrader.com/) framework. Here is a minimal example (see `estrategia_ejemplo.py` for a complete one):
+Strategies must be written using the [Backtrader](https://www.backtrader.com/) framework and follow two contracts to be fully compatible with StratStats:
+
+### Contract 1 — `params` tuple (required for Optimization page)
+
+To use the **Optimization** page, your strategy must declare a `params` tuple at class level. The optimizer will automatically detect these parameters and let you define a sweep range for each one from the UI.
 
 ```python
-import backtrader as bt
-
 class MyStrategy(bt.Strategy):
     params = (
-        ("sma_fast", 10),
-        ("sma_slow", 30),
+        ("sma_rapida", 10),   # (parameter_name, default_value)
+        ("sma_lenta",  30),
+        ("stop_loss",   0.0),
     )
-
-    def __init__(self):
-        self.trade_log = []  # Required for trade analytics
-        self.sma_fast = bt.ind.SMA(period=self.p.sma_fast)
-        self.sma_slow = bt.ind.SMA(period=self.p.sma_slow)
-        self.crossover = bt.ind.CrossOver(self.sma_fast, self.sma_slow)
-
-    def next(self):
-        if not self.position and self.crossover > 0:
-            size = int((self.broker.getcash() * 0.95) // self.data.close[0])
-            self.buy(size=size)
-        elif self.position and self.crossover < 0:
-            self.close()
-
-    def notify_order(self, order):
-        if order.status == order.Completed:
-            if order.issell():
-                self.trade_log.append({
-                    "buyprice": ...,
-                    "sellprice": order.executed.price,
-                })
 ```
 
-> ⚠️ Your strategy class **must** maintain a `self.trade_log` list with `buyprice` and `sellprice` entries for the analytics to work correctly.
+> Parameters not selected for optimization will remain at their default value during the sweep.
+
+### Contract 2 — `self.trade_log` (required for Backtest analytics)
+
+The **Backtest** page uses `self.trade_log` to compute per-trade analytics and display the trade table. Your strategy must initialise it as an empty list in `__init__` and append one entry per completed round-trip trade inside `notify_order`:
+
+```python
+def __init__(self):
+    self.trade_log = []  # required
+    self.precio_entrada = None
+    # ... your indicators ...
+
+def notify_order(self, order):
+    if order.status == order.Completed:
+        if order.isbuy():
+            self.precio_entrada = order.executed.price
+        elif order.issell():
+            self.trade_log.append({
+                "buyprice":  self.precio_entrada,
+                "sellprice": order.executed.price,
+            })
+```
+
+### Full example — SMA Crossover
+
+A complete ready-to-upload example is provided in [`estrategia_ejemplo.py`](estrategia_ejemplo.py). It implements a simple moving-average crossover strategy with an optional stop-loss, and respects both contracts above.
 
 ---
 
