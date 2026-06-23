@@ -2,7 +2,7 @@
 
 > **A simple yet powerful backtesting web app for trading strategies on stocks and options portfolios.**
 
-StratStats is a [Streamlit](https://streamlit.io)-based web application that lets you upload your own trading strategy (written in Python/Backtrader), backtest it against historical market data, and optimize its parameters — all from a clean browser interface.
+StratStats is a [Streamlit](https://streamlit.io)-based web application that lets you upload your own trading strategy (written in Python/Backtrader), backtest it against historical market data, and optimize its parameters, all from a clean browser interface.
 
 ---
 
